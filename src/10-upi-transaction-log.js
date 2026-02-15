@@ -48,4 +48,109 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    console.log(null);
+    return null;
+  }
+
+  const validTransactions = transactions.filter(
+    (transaction) =>
+      transaction.amount > 0 &&
+      typeof transaction.amount === "number" &&
+      ["credit", "debit"].includes(transaction.type?.trim().toLowerCase()),
+  );
+  if (validTransactions.length === 0) {
+    console.log(null);
+    return null;
+  }
+
+  const totalCredit = validTransactions.reduce(
+    (sum, validTransaction) =>
+      validTransaction.type.trim().toLowerCase() === "credit"
+        ? sum + validTransaction.amount
+        : sum,
+    0,
+  );
+
+  const totalDebit = validTransactions.reduce(
+    (sum, validTransaction) =>
+      validTransaction.type.trim().toLowerCase() === "debit"
+        ? sum + validTransaction.amount
+        : sum,
+    0,
+  );
+
+  const netBalance = totalCredit - totalDebit;
+  const transactionCount = validTransactions.length;
+  const totalValidTransactionAmount = validTransactions.reduce(
+    (sum, validTransaction) => sum + validTransaction.amount,
+    0,
+  );
+
+  const avgTransaction = Math.round(
+    totalValidTransactionAmount / transactionCount,
+  );
+
+  const highestTransaction = validTransactions.reduce(
+    (max, t) => (t.amount > max.amount ? t : max),
+    validTransactions[0],
+  );
+
+  const categoryBreakdown = validTransactions.reduce((acc, t) => {
+    const category = t.category;
+    if (!category) return acc;
+    acc[category] = (acc[category] || 0) + t.amount;
+    return acc;
+  }, {});
+
+  const contacts = validTransactions.map((t) => t.to);
+  function getFrequentContact(arr) {
+    let m = {};
+    let maxCount = 0;
+    let res = null;
+
+    for (let x of arr) {
+      m[x] = (m[x] || 0) + 1;
+      if (m[x] > maxCount) {
+        maxCount = m[x];
+        res = x;
+      }
+    }
+    return res;
+  }
+  const frequentContact = getFrequentContact(contacts);
+
+  const allAbove100 = validTransactions.every(
+    (transaction) => transaction.amount > 100,
+  );
+
+  const hasLargeTransaction = validTransactions.some(
+    (validTransaction) => validTransaction.amount >= 5000,
+  );
+
+  console.table({
+    totalCredit,
+    totalDebit,
+    netBalance,
+    transactionCount,
+    avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact,
+    allAbove100,
+    hasLargeTransaction,
+  });
+
+  return {
+    totalCredit,
+    totalDebit,
+    netBalance,
+    transactionCount,
+    avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact,
+    allAbove100,
+    hasLargeTransaction,
+  };
 }

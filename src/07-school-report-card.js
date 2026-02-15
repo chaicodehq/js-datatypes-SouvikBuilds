@@ -42,4 +42,81 @@
  */
 export function generateReportCard(student) {
   // Your code here
+  if (typeof student !== "object" || student === null) {
+    console.log(null);
+    return null;
+  }
+
+  if (typeof student.name !== "string" || student.name.trim() === "") {
+    console.log(null);
+    return null;
+  }
+
+  if (
+    typeof student.marks !== "object" ||
+    student.marks === null ||
+    Object.keys(student.marks).length === 0
+  ) {
+    console.log(null);
+    return null;
+  }
+
+  const marksArray = Object.values(student.marks);
+  if (
+    marksArray.some(
+      (mark) => typeof mark !== "number" || mark < 0 || mark > 100,
+    )
+  ) {
+    console.log(null);
+    return null;
+  }
+
+  const subjectCount = Object.keys(student.marks).length;
+  const totalMarks = marksArray.reduce((sum, mark) => sum + mark, 0);
+  const percentage = parseFloat(
+    ((totalMarks / (subjectCount * 100)) * 100).toFixed(2),
+  );
+
+  let grade;
+
+  if (percentage >= 90) grade = "A+";
+  else if (percentage >= 80) grade = "A";
+  else if (percentage >= 70) grade = "B";
+  else if (percentage >= 60) grade = "C";
+  else if (percentage >= 40) grade = "D";
+  else grade = "F";
+  const entries = Object.entries(student.marks);
+
+  let highestSubject = entries[0][0];
+  let lowestSubject = entries[0][0];
+
+  for (let [subject, mark] of entries) {
+    if (mark > student.marks[highestSubject]) {
+      highestSubject = subject;
+    }
+    if (mark < student.marks[lowestSubject]) {
+      lowestSubject = subject;
+    }
+  }
+  const passedSubjects = Object.entries(student.marks)
+    .filter(([_, mark]) => mark >= 40)
+    .map(([subject]) => subject);
+
+  const failedSubjects = Object.entries(student.marks)
+    .filter(([_, mark]) => mark < 40)
+    .map(([subject]) => subject);
+
+  const reportcard = {
+    name: student.name,
+    totalMarks,
+    percentage,
+    grade,
+    highestSubject,
+    lowestSubject,
+    subjectCount,
+    passedSubjects,
+    failedSubjects,
+  };
+  console.log(reportcard);
+  return reportcard;
 }
